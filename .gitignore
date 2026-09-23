@@ -1,6 +1,7 @@
 # ── Python ──────────────────────────────────────────────
 __pycache__/
 *.py[cod]
+*.pyc
 *.egg-info/
 .venv/
 .venv_piper_plus/
@@ -9,12 +10,14 @@ venv/
 # ── 密钥与环境 ──────────────────────────────────────────
 .env
 .env.*
+!.env.example
 *.key
 *.pem
 id_rsa
 id_ed25519
+secrets.json
 
-# ── 运行时产生的个人数据（绝不能提交）────────────────────
+# ── 运行时个人数据（绝不能提交）──────────────────────────
 memory.json
 important_memory.json
 important_memory_before_association.json
@@ -27,9 +30,18 @@ imagination_memory.json
 self_observation_memory.jsonl
 vision_observation_log.jsonl
 vision_comparison_memory.jsonl
+conversation_log.jsonl
 *.jsonl
 
-# ── 第三方大模型（体积大，不在仓库内分发）─────────────────
+# ── 抓帧与录音产物 ──────────────────────────────────────
+vision_frames/
+*.wav
+*.mp3
+*.jpg
+*.jpeg
+*.png
+
+# ── 第三方大模型（体积大，不随仓库分发）───────────────────
 bert-base-chinese/
 g2pW/
 piper-plus-model/
@@ -40,13 +52,6 @@ voices/
 *.onnx.json
 *.tar.gz
 *.zip
-
-# ── 媒体 ────────────────────────────────────────────────
-*.wav
-*.mp3
-*.jpg
-*.jpeg
-*.png
 
 # ── 系统/缓存 ───────────────────────────────────────────
 .cache/

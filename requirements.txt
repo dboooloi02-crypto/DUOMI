@@ -1,28 +1,38 @@
 # DUOMI requirements
 #
+# 只包含源码真实 import 的第三方 Python 包。
 # 版本来自开发机（Raspberry Pi）上 .venv 的实际安装，Python 3.13。
-# 本清单只包含源码真实 import 的第三方包，不包含任何本地模型文件。
 #
-# 说明：DUOMI 使用 DeepSeek 作为 LLM 后端，但走 OpenAI 兼容 SDK，
+# 不包含（也不会被复制进来）：
+#   .venv/ · .venv_piper_plus/ · site-packages · pip cache
+#   第三方模型（ONNX / 音色 / ASR 模型 / bert-base-chinese / g2pW）
+#
+# 说明：DUOMI 当前使用 DeepSeek 作为 LLM 后端，走 OpenAI 兼容 SDK。
 #       API Key 从环境变量 DEEPSEEK_API_KEY 读取，源码内不含任何密钥。
+#       LLM 只是认知引擎之一，系统设计上可替换。
 
-# ── 核心（22 个当前源码模块实际 import）────────────────────
-openai==3.14.1          # LLM client（DeepSeek OpenAI 兼容接口）
+# ── Core（当前源码模块实际 import）──────────────────────────────
+openai==3.14.1          # LLM client（OpenAI 兼容接口，当前指向 DeepSeek）
 numpy==2.5.3            # hearing.py 音频采样处理
 sherpa-onnx==1.12.39    # hearing.py 中文流式 ASR
-gpiozero==2.0.1.post3   # motor_controller.py GPIO 直流电机
+gpiozero==2.0.1.post3   # motor_controller.py GPIO 电机控制
 
-# ── 可选：TTS 的 Python 侧（tts.py 用 `python -m piper`）────
-# tts_plus.py 走 piper-plus 的可执行文件，不需要这个包。
+# ── Optional：TTS 的 Python 侧 ──────────────────────────────────
+# tts.py 用 `python -m piper`，需要这个包。
+# tts_plus.py 直接调用 piper-plus 可执行文件，不需要。
 piper-tts==1.8.0
 
-# ── 可选：上述包的底层依赖，显式列出以防解析冲突 ─────────────
+# ── Optional：显式列出底层依赖，避免解析冲突 ─────────────────────
 onnxruntime==1.30.0
 
-# ── 非 pip 的系统级依赖（需另行安装）───────────────────────
-#   arecord / aplay   : ALSA 录音与播放（hearing / tts）
-#   libcamera-still   : 摄像头抓帧（vision_system 通过 subprocess 调用）
-#   piper-plus        : TTS 二进制，位于 .venv_piper_plus/bin/piper
-#   ASR 模型          : sherpa-onnx-streaming-zipformer-small-ctc-zh-int8-2025-04-01
-#   TTS 音色          : voices/*.onnx
-# 以上均为大体积文件或系统包，不随仓库分发。
+# ── 非 pip 的系统级依赖（需另行安装）────────────────────────────
+#   v4l2-ctl        : USB 摄像头抓帧，vision_system.py 通过 subprocess 调用
+#   arecord / aplay : ALSA 录音与播放（hearing.py / tts*.py）
+#   piper-plus      : TTS 二进制（.venv_piper_plus/bin/piper）
+#
+#   在 Debian / Raspberry Pi OS 上：
+#     sudo apt install v4l-utils alsa-utils
+#
+# ── 需要单独下载的模型文件（不在仓库内）─────────────────────────
+#   ASR : sherpa-onnx-streaming-zipformer-small-ctc-zh-int8-2025-04-01/
+#   TTS : voices/*.onnx（Piper）、piper-plus-model/（Piper-Plus）
