@@ -73,3 +73,20 @@ python motor_controller.py
 
 W = forward, S = backward, A = left, D = right, Space = stop, Q = quit.
 Each movement lasts 0.3 s.
+
+---
+
+## Planned hardware (V0.7)
+
+The current body has **no feedback sensors** — DUOMI knows which command it sent, not
+what the body actually did. V0.7 is planned to add:
+
+- Wheel encoders
+- IMU
+- Distance sensors
+- Battery monitoring
+- Odometry
+
+After this, `motor_controller.py` can stop being open-loop only, and V0.8 (ROS 2 +
+navigation) becomes meaningful. See
+[`README.md` → Development Roadmap](../../README.md#development-roadmap).
