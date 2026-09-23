@@ -230,6 +230,85 @@ Safety / Epistemic Check) are honest gaps, not documentation shortcuts.
 
 ---
 
+## How DUOMI Runs Today
+
+DUOMI currently runs on a Raspberry Pi. **`main.py` is the system entry point.**
+
+### 1. Startup
+
+```text
+main.py
+  ↓
+create DeepSeek / OpenAI-compatible LLM client   (key from env DEEPSEEK_API_KEY)
+  ↓
+load Hearing                                     (sherpa-onnx streaming Chinese ASR)
+  ↓
+load Action Planner
+  ↓
+load Robot Controller                            (GPIO motors)
+  ↓
+load User Profile                                (user_profile.json)
+  ↓
+load Important Memory                            (important_memory.json)
+  ↓
+build system prompt (identity + user profile), append conversation history (memory.json)
+  ↓
+register SIGINT handler — Ctrl+C stops the body and exits
+  ↓
+enter the interaction loop
+```
+
+### 2. Interaction loop
+
+Each turn is **voice-driven and blocking** — DUOMI waits for one utterance, then acts:
+
+```text
+listen once (ASR) → no speech detected → listen again
+      ↓
+exit command? ("quit" / "退出" / "退出系统") → save memory, stop body, exit
+      ↓
+Action Planner — does this utterance map to a movement?
+      │
+      ├── YES → Robot Controller executes (forward / backward / left / right / stop)
+      │         → speak a short confirmation → save memory → next turn
+      │         (on failure: stop the body, then next turn)
+      │
+      └── NO  → conversation path:
+                1. infer an emotion event from the utterance; if one is detected,
+                   apply it to the internal state
+                2. retrieve related long-term memories
+                3. assemble context: memory + internal state + learned rules
+                4. ask the LLM (web tools are used only when needed)
+                5. speak the answer FIRST, before any autonomous processing
+                6. if an emotion event was detected: reflect on this turn and record
+                   the lesson (falls back to a conservative template if reflection fails)
+                7. save conversation memory, then organise long-term memory
+                   (add / update / ignore, plus bidirectional linking of related memories)
+```
+
+### 3. What this means in practice
+
+- **Turn-based, not scheduled.** There is no background scheduler. DUOMI reacts to one
+  spoken utterance at a time.
+- **Movement and conversation are alternative branches, not a combined pipeline.** If the
+  planner returns a movement, DUOMI moves and answers with a fixed short confirmation
+  rather than generating a conversational reply.
+- **Emotion and learning are event-gated.** Internal state is only updated when
+  `infer_event` detects an explicit event; ordinary chat does not force an emotion change.
+  Reflection and learning run only on turns where such an event was detected.
+- **Speech output comes first.** `speak_plus` runs before reflection and memory
+  organisation, so autonomous processing never adds to the user's waiting time.
+- **Everything persists to local files**: conversation history → `memory.json`,
+  long-term memory → `important_memory.json`, user profile → `user_profile.json`.
+- **Safety**: Ctrl+C stops the motors and exits; every motor command is clamped by
+  `MAX_ACTION_DURATION` and always stops in a `finally` block.
+
+This section describes **what the code does today**, not the target design. The intended
+full loop is in [Architecture](#architecture), and several of its stages are not
+implemented yet.
+
+---
+
 ## Repository layout
 
 ```
@@ -368,10 +447,26 @@ Belief System、Goal System、Scheduler、目标驱动的自主性、轮式编�
 **ROS 2 当前没有实际代码** —— 没有 `rclpy`、没有 `package.xml`、没有 colcon 构建。
 身体层直接驱动 GPIO。请不要把上面的「ROS 2 integration」理解为当前已支持。
 
-### 架构
+### DUOMI 当前如何运行
 
-见上方 Architecture 一节。其中 Belief、Goal 尚未实现；Self Model 与
-Safety / Epistemic Check 仅部分实现。
+DUOMI 当前运行在 Raspberry Pi 上，**`main.py` 是系统入口**。
+
+启动顺序见上方「How DUOMI Runs Today」第 1 节。启动后进入**语音驱动、阻塞式**的交互循环：
+DUOMI 等待一句语音，然后行动。
+
+几个容易误解的点，按代码实际情况说明：
+
+- **一轮一轮来，不是后台调度。** 没有后台调度器，DUOMI 一次只对一句语音做出反应。
+- **移动与对话是二选一分支，不是串联流水线。** planner 若返回动作，DUOMI 执行动作并用一句固定确认回复，
+  不再生成对话式回答；只有 planner 没返回动作时才走对话分支。
+- **情绪与学习由事件触发。** 只有 `infer_event` 检测到明确事件时才更新内部状态，普通闲聊不会强行改变情绪；
+  反思与学习同样只在检测到事件的轮次执行（反思失败时退回保守模板学习）。
+- **语音输出优先。** `speak_plus` 在反思与记忆整理之前执行，自主处理不会增加用户等待时间。
+- **全部落本地文件**：对话历史 → `memory.json`，长期记忆 → `important_memory.json`，档案 → `user_profile.json`。
+- **安全**：Ctrl+C 停止电机并退出；每条电机指令受 `MAX_ACTION_DURATION` 限制，并在 `finally` 中保证停止。
+- **退出方式**：说「退出系统」/「退出」/「quit」正常保存并退出；Ctrl+C 为紧急停止。
+
+这一节描述的是**代码当前实际做的事**，不是目标架构。目标架构见上方 Architecture，其中若干阶段尚未实现。
 
 ### 快速开始
 
