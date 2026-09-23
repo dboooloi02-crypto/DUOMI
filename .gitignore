@@ -41,6 +41,13 @@ vision_frames/
 *.jpeg
 *.png
 
+# media/ 例外：README 与 Demo 明确引用的图片需要提交。
+# media/ 之外的图片仍默认忽略（摄像头抓帧、私人照片不入库）。
+!media/**/
+!media/**/*.jpg
+!media/**/*.jpeg
+!media/**/*.png
+
 # ── 第三方大模型（体积大，不随仓库分发）───────────────────
 bert-base-chinese/
 g2pW/

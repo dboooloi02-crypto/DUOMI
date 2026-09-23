@@ -10,14 +10,17 @@
 
 DUOMI is an embodied AI personal robot built from scratch.
 
-The goal is not to make AI answer questions, but to let it gradually have:
+**The long-term goal is for DUOMI to develop:**
 
 - a continuous identity
 - long-term memory
 - internal state
 - a relationship model
-- autonomous action
+- autonomous agency
 - a physical body
+
+This is a goal, not a list of current capabilities — see
+[Implemented](#implemented) for what actually exists today.
 
 ### About the LLM
 
@@ -33,6 +36,46 @@ DUOMI's own modules, not inside any model.
 ## How DUOMI Runs Today
 
 DUOMI currently runs on a Raspberry Pi. **`main.py` is the system entry point.**
+
+### Runtime flow at a glance
+
+```text
+start main.py
+    ↓
+load LLM / Hearing / Action Planner / Robot / Memory
+    ↓
+microphone
+    ↓
+streaming ASR
+    ↓
+text
+    ↓
+┌───────────────────┬──────────────────────┐
+│ body command      │ normal conversation  │
+↓                   ↓
+Action Planner      Memory / State
+↓                   ↓
+Robot Controller    LLM / Web
+↓                   ↓
+Motor               Answer
+└─────────┬─────────┘
+          ↓
+         TTS
+          ↓
+   Reflection / Learning
+          ↓
+     Memory update
+          ↓
+       next turn
+```
+
+> **Current Runtime Flow describes what the code does today.
+> Cognitive Architecture describes where DUOMI is going.**
+
+One correction to the diagram: the two branches do **not** continue identically.
+After a body command DUOMI saves the turn and goes straight to the next turn.
+Reflection, learning and long-term memory organisation happen only on the
+conversation branch, and only when an emotion event was detected.
 
 ### 1. Startup
 
@@ -144,6 +187,22 @@ Learning / Growth     learning_system.py · reflection_system.py
 **Several stages in this pipeline are still under development.** The two stages marked
 *not implemented* (Belief, Goal) and the two marked *partial* (Self Model,
 Safety / Epistemic Check) are honest gaps, not documentation shortcuts.
+
+### Six subsystems
+
+| Subsystem | Carried by | Status |
+|-----------|-----------|--------|
+| Brain | `action_planner.py` + DeepSeek via OpenAI-compatible SDK | Implemented |
+| Memory | `memory_manager.py` | Implemented (retrieval quality in progress) |
+| Self | `learning_system.py`, `reflection_system.py`, `imagination_system.py` | **Early prototype** — no standalone module |
+| Agency | `imagination_trigger.py`, `main.py` | **Early prototype** — trigger-based only |
+| Relationship | `emotion_system.py` | **Early prototype** — internal state dimensions, no standalone model |
+| Body | `motor_controller.py`, `hearing.py`, `tts*.py`, `vision_system.py` | Implemented, minimal (differential base only) |
+
+> **On "energy":** DUOMI's internal state includes a simulated `energy` variable —
+> a cognitive-resource / drive level. It is **not** battery level; DUOMI has no battery
+> sensor. Physical battery monitoring is planned in **V0.7**, after which a distinct
+> "physical energy state" can be added.
 
 ---
 
@@ -303,6 +362,35 @@ This is the **recommended development order**, not a claim that these capabiliti
 Only **V0.1** is done. Everything from V0.2 onward is future work.
 
 Legend: ✅ done · 🟡 started / next · 🔵 planned · 🔴 long-term
+
+```text
+V0.1 Foundation              ✅  current
+    ↓
+V0.2 Memory Foundation       🟡
+    ↓
+V0.3 Self Model              🟡
+    ↓
+V0.4 Relationship Model      🟡
+    ↓
+V0.5 Belief + Goal           🔵
+    ↓
+V0.6 Agency / Autonomy       🔵
+    ↓
+V0.7 Physical Feedback       🔵
+    ↓
+V0.8 Navigation + ROS 2      🔵
+    ↓
+V0.9 Multimodal Memory       🔵
+    ↓
+V1.0 Manipulation            🔵
+    ↓
+V1.x Self-directed Growth    🔴
+    ↓
+Future Humanoid              🔴
+```
+
+The order is driven by **dependencies, not by feature count** — each version exists
+because the next one needs it.
 
 ### V0.1 — Foundation ✅
 
@@ -634,14 +722,16 @@ ideas as completed capabilities.
 
 DUOMI 是一个从零开始构建的 embodied AI personal robot。
 
-目标不是让 AI 回答问题，而是让它逐步拥有：
+**长期目标是让 DUOMI 逐步形成：**
 
 - 持续身份
 - 长期记忆
 - 内部状态
 - 关系模型
-- 自主行动
+- 自主能力
 - 实体身体
+
+这是目标，不是当前能力清单 —— 当前实际具备什么见 Implemented。
 
 **LLM 是 DUOMI 的认知引擎之一，而不是 DUOMI 本身的身份。** 当前使用 DeepSeek
 （经 OpenAI 兼容 SDK），系统设计上允许未来替换不同的 LLM —— DUOMI 的身份、记忆与

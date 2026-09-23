@@ -1,10 +1,47 @@
 # media
 
-This directory is intentionally empty.
+This directory is currently empty.
 
-Reason: the README does not reference any image or audio, and the only media in the
-original project (`camera_test.jpg`, `mic_test.wav`) are raw captures of a private
-environment. Publishing them would leak personal surroundings.
+## Why it exists
 
-If you later add a demo, put it here **and** reference it from the README —
-a media file that nothing links to is just exposure without purpose.
+DUOMI is a physical robot. A repository that claims a body should eventually show one.
+When a first real photo or demo clip is ready, it belongs here and can be referenced
+from the README.
+
+## Git note
+
+`.gitignore` excludes `*.jpg` / `*.jpeg` / `*.png` / `*.wav` globally, so camera frames,
+test captures and private recordings never end up in the repository by accident.
+
+This directory is an **exception**:
+
+```gitignore
+!media/**/
+!media/**/*.jpg
+!media/**/*.jpeg
+!media/**/*.png
+```
+
+So images inside `media/` **are** committable, while identical files elsewhere stay
+ignored. Verified with `git status` — a file at `media/x.jpg` shows up as untracked,
+while a file at `x.jpg` does not.
+
+## Suggested contents
+
+```text
+media/
+├── duomi-v0.1.jpg        # the robot itself — the most important one
+├── hardware-v0.1.jpg     # wiring, motors, Raspberry Pi, camera, mic
+└── demos/
+```
+
+## Rule
+
+Only publish media that:
+
+- shows hardware or behaviour you are willing to make public, and
+- is actually referenced from the README or docs.
+
+Camera observations of private spaces — and anything containing people who have not
+agreed to be published — stay out. A media file that nothing links to is exposure
+without purpose.
