@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "text": "DUOMI",
+      "pronunciation": "多米",
+      "category": "name"
+    },
+    {
+      "text": "Duomi",
+      "pronunciation": "多米",
+      "category": "name"
+    },
+    {
+      "text": "duomi",
+      "pronunciation": "多米",
+      "category": "name"
+    },
+    {
+      "text": "I am",
+      "pronunciation": "I AM",
+      "category": "prosody"
+    },
+    {
+      "text": "i am",
+      "pronunciation": "I AM",
+      "category": "prosody"
+    },
+    {
+      "text": "GPIO",
+      "pronunciation": "G P I O",
+      "category": "technical"
+    },
+    {
+      "text": "API",
+      "pronunciation": "A P I",
+      "category": "technical"
+    },
+    {
+      "text": "LLM",
+      "pronunciation": "大语言模型",
+      "category": "technical"
+    },
+    {
+      "text": "Raspberry Pi",
+      "pronunciation": "树莓派",
+      "category": "technical"
+    }
+  ]
+}

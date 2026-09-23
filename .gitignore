@@ -1,0 +1,57 @@
+# ── Python ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.venv_piper_plus/
+venv/
+
+# ── 密钥与环境 ──────────────────────────────────────────
+.env
+.env.*
+*.key
+*.pem
+id_rsa
+id_ed25519
+
+# ── 运行时产生的个人数据（绝不能提交）────────────────────
+memory.json
+important_memory.json
+important_memory_before_association.json
+user_profile.json
+emotion_history.jsonl
+emotion_state.json
+learning_history.jsonl
+learned_rules.json
+imagination_memory.json
+self_observation_memory.jsonl
+vision_observation_log.jsonl
+vision_comparison_memory.jsonl
+*.jsonl
+
+# ── 第三方大模型（体积大，不在仓库内分发）─────────────────
+bert-base-chinese/
+g2pW/
+piper-plus-model/
+piper-plus-runtime/
+sherpa-onnx-streaming-zipformer-small-ctc-zh-int8-2025-04-01/
+voices/
+*.onnx
+*.onnx.json
+*.tar.gz
+*.zip
+
+# ── 媒体 ────────────────────────────────────────────────
+*.wav
+*.mp3
+*.jpg
+*.jpeg
+*.png
+
+# ── 系统/缓存 ───────────────────────────────────────────
+.cache/
+.local/
+.config/
+.ssh/
+nltk_data/
+.DS_Store
